@@ -42,6 +42,7 @@ FILES = [
     "notes/lesson-16-accidents-demerit.md",
     "notes/lesson-17-trunk-roads.md",
     "notes/lesson-18-signs-classification.md",
+    "notes/lesson-19-2026-supplement.md",
     "notes/official-place-route-bank.md",
     "notes/location-reference-handbook.md",
     "exams/real-exam-questions-reference.md",
