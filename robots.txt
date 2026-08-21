@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://eeworm.github.io/hk-taxi-written-test/sitemap.xml
