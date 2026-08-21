@@ -370,13 +370,14 @@ button { font-family: var(--sans); }
   transition: color .15s, border-color .15s;
 }
 .lesson-content .map-link:hover { color: var(--red); border-bottom-color: var(--red); }
-.route-map {
+.route-map, .quiz-map {
   font-family: var(--mono); font-size: .74rem; cursor: pointer;
   background: var(--blue-soft); color: var(--blue);
   border: 1px solid rgba(0,87,184,.25); border-radius: 6px; padding: 2px 8px;
   white-space: nowrap;
 }
-.route-map:hover { background: var(--blue); color: #fff; }
+.route-map:hover, .quiz-map:hover { background: var(--blue); color: #fff; }
+.quiz-map { margin-left: 6px; }
 .map-modal { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; }
 .map-modal[hidden] { display: none; }
 .map-modal-backdrop { position: absolute; inset: 0; background: rgba(10,16,26,.6); }
@@ -9521,7 +9522,7 @@ button { font-family: var(--sans); }
       <p>📷 交通標誌圖片版權屬香港特別行政區政府運輸署所有。部分題目來源已於內文註明。</p>
       <p>📚 筆記及程式碼以 <a href="https://github.com/eeworm/hk-taxi-written-test/blob/main/LICENSE" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 授權共享（圖片除外）。</p>
       <p>🎉 祝大家考試成功，一take過！</p>
-      <p>由 build-html.py 生成・2026-08-21 19:11・23 個檔案・26 個標誌內嵌・完全離線</p>
+      <p>由 build-html.py 生成・2026-08-21 19:35・23 個檔案・26 個標誌內嵌・完全離線</p>
     </div>
   </div>
 </div>
@@ -9658,6 +9659,12 @@ button { font-family: var(--sans); }
       e.preventDefault();
       showRoute(btn.dataset.from, btn.dataset.to);
     }
+    var qbtn = e.target.closest(".quiz-map");
+    if (qbtn) {
+      e.preventDefault();
+      if (qbtn.dataset.from) showRoute(qbtn.dataset.from, qbtn.dataset.to);
+      else showPlace(qbtn.dataset.q, qbtn.dataset.label);
+    }
   });
 
   /* ---- 互動模擬試 ---- */
@@ -9677,6 +9684,15 @@ button { font-family: var(--sans); }
 
     function esc(s) {
       return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+    function mapBtnHtml(q) {
+      if (q.type === "place") {
+        return ' <button class="quiz-map" data-q="' + esc(q.mapQ) + '" data-label="' + esc(q.q) + '">🗺️ 地圖</button>';
+      }
+      if (q.type === "route") {
+        return ' <button class="quiz-map" data-from="' + esc(q.from) + '" data-to="' + esc(q.to) + '">🗺️ 路線圖</button>';
+      }
+      return "";
     }
     function shuffle(arr) {
       var a = arr.slice();
@@ -9707,8 +9723,8 @@ button { font-family: var(--sans); }
       if (q.type === "route") return "r:" + q.n;
       return "m:" + q.q;
     }
-    function placeQ(p) { return { type: "place", q: p.name, a: p.loc, tag: p.cat, n: p.n }; }
-    function routeQ(r) { return { type: "route", q: r.s + " → " + r.d, a: r.r, tag: "路線", n: r.n }; }
+    function placeQ(p) { return { type: "place", q: p.name, a: p.loc, tag: p.cat, n: p.n, mapQ: p.name + " 香港" }; }
+    function routeQ(r) { return { type: "route", q: r.s + " → " + r.d, a: r.r, tag: "路線", n: r.n, from: r.s, to: r.d }; }
     function mcQ(m) {
       var ok = null;
       m.opts.forEach(function (o) { if (o.ok) ok = o.t; });
@@ -9846,8 +9862,8 @@ button { font-family: var(--sans); }
         fb.textContent = "✅ 啱！";
         fb.className = "quiz-feedback ok";
       } else {
-        st.wrong.push({ q: q.q, a: q.a, picked: picked });
-        fb.textContent = "❌ 錯！正確答案：" + q.a;
+        st.wrong.push({ q: q.q, a: q.a, picked: picked, type: q.type, mapQ: q.mapQ, from: q.from, to: q.to });
+        fb.innerHTML = "❌ 錯！正確答案：" + esc(q.a) + mapBtnHtml(q);
         fb.className = "quiz-feedback no";
       }
       qzStatus.textContent = "第 " + (st.i + 1) + " / " + st.questions.length +
@@ -9871,7 +9887,7 @@ button { font-family: var(--sans); }
       if (st.wrong.length) {
         qzWrong.innerHTML = "<h4>❌ 錯題重溫（" + st.wrong.length + "題）</h4><ul>" +
           st.wrong.map(function (w) {
-            return "<li>" + esc(w.q) + " → 正確：<b>" + esc(w.a) + "</b>（你答：" + esc(w.picked) + "）</li>";
+            return "<li>" + esc(w.q) + " → 正確：<b>" + esc(w.a) + "</b>（你答：" + esc(w.picked) + "）" + mapBtnHtml(w) + "</li>";
           }).join("") + "</ul>";
       } else {
         qzWrong.innerHTML = "";
