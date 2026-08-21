@@ -1337,7 +1337,15 @@ def build():
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Driwe 溫習指南 — 的士及網約車綜合筆試</title>
+<title>Driwe 溫習指南 — 的士及出租汽車合併筆試免費溫習平台</title>
+<meta name="description" content="香港的士及出租汽車合併筆試免費溫習平台：19課完整筆記、200+選擇題互動模擬試、255個官方地方＋18條路線題庫、交通標誌圖鑑。非官方、免費、無需註冊、可離線使用。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚕</text></svg>">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Driwe 溫習指南">
+<meta property="og:title" content="Driwe 溫習指南 — 的士及出租汽車合併筆試免費溫習平台">
+<meta property="og:description" content="19課完整筆記、200+選擇題互動模擬試、官方地方路線題庫、交通標誌圖鑑。免費、無需註冊、可離線使用。祝大家考試成功，一take過！">
+<meta property="og:url" content="https://eeworm.github.io/hk-taxi-written-test/">
+<meta property="og:locale" content="zh_Hant">
 <style>{CSS}</style>
 </head>
 <body>
