@@ -85,7 +85,7 @@ GALLERY = [
         ("official-mand-turn-left.png", "左轉（符號方向相反則右轉）", None, False),
         ("official-mand-one-way.png", "單程行車", None, False),
     ]),
-    ("指示標誌（必考陷阱！）", "⚠️ 形狀呃人——功能上係指令你讓路/停車，屬指示標誌", [
+    ("限制標誌（必考陷阱！）", "⚠️ 形狀呃人——八角形停車同倒三角讓路都屬「限制標誌」（禁制性）——唔係指示，亦唔係警告", [
         ("official-give-way.png", "讓路（倒三角）", "必考陷阱", False),
         ("official-stop-sign.png", "停車（八角形）", "必考陷阱", False),
     ]),
