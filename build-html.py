@@ -1337,12 +1337,12 @@ def build():
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Driwe 溫習指南 — 的士及出租汽車合併筆試免費溫習平台</title>
-<meta name="description" content="香港的士及出租汽車合併筆試免費溫習平台：19課完整筆記、200+選擇題互動模擬試、255個官方地方＋18條路線題庫、交通標誌圖鑑。非官方、免費、無需註冊、可離線使用。">
+<title>Driwe 溫習指南 — 的士及網約車綜合筆試免費溫習平台</title>
+<meta name="description" content="香港的士及網約車綜合筆試免費溫習平台：19課完整筆記、200+選擇題互動模擬試、255個官方地方＋18條路線題庫、交通標誌圖鑑。非官方、免費、無需註冊、可離線使用。">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚕</text></svg>">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Driwe 溫習指南">
-<meta property="og:title" content="Driwe 溫習指南 — 的士及出租汽車合併筆試免費溫習平台">
+<meta property="og:title" content="Driwe 溫習指南 — 的士及網約車綜合筆試免費溫習平台">
 <meta property="og:description" content="19課完整筆記、200+選擇題互動模擬試、官方地方路線題庫、交通標誌圖鑑。免費、無需註冊、可離線使用。祝大家考試成功，一take過！">
 <meta property="og:url" content="https://eeworm.github.io/hk-taxi-written-test/">
 <meta property="og:locale" content="zh_Hant">
@@ -1392,7 +1392,7 @@ def build():
             <li><a href="https://www.td.gov.hk/filemanager/tc/content_5405/New%20Combined%20Written%20Test%20Booklet_C.pdf" target="_blank" rel="noopener">📕 合併筆試試題小冊子（地方＋路線官方題庫出處）</a><span>PDF ↗</span></li>
             <li><a href="https://www.td.gov.hk/filemanager/tc/content_5405/Guide%20to%20Taxi%20and%20Ride-hailing%20Vehicle%20Combined%20Written%20Test_TC_clean_r_20260803_r2_20260806.pdf" target="_blank" rel="noopener">📋 考試指引（含模擬試題）</a><span>PDF ↗</span></li>
             <li><a href="https://www.td.gov.hk/filemanager/tc/content_172/road_users_code_2020_chi.pdf" target="_blank" rel="noopener">📘 道路使用者守則 2020（交通標誌官方圖源）</a><span>PDF ↗</span></li>
-            <li><a href="https://www.td.gov.hk/tc/public_services/licences_and_permits/driving_test/tarhvcwt/index.html" target="_blank" rel="noopener">🏛 運輸署官方專頁 — 的士及出租汽車合併筆試</a><span>網頁 ↗</span></li>
+            <li><a href="https://www.td.gov.hk/tc/public_services/licences_and_permits/driving_test/tarhvcwt/index.html" target="_blank" rel="noopener">🏛 運輸署官方專頁 — 的士及網約車綜合筆試</a><span>網頁 ↗</span></li>
           </ul>
           <p class="dl-note">💡 以上文件版權屬運輸署所有，全部連結至官方網站；如連結失效，請到運輸署專頁搜尋下載。</p>
         </div>

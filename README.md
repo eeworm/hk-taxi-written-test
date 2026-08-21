@@ -1,8 +1,8 @@
-# Driwe 溫習指南 — 的士及出租汽車合併筆試免費溫習平台 🚕
+# Driwe 溫習指南 — 的士及網約車綜合筆試免費溫習平台 🚕
 
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](LICENSE)
 
-一個免費、無需註冊、可完全離線使用嘅溫習平台，幫你準備香港運輸署 **的士及出租汽車合併筆試**（Taxi and Ride-hailing Vehicle Combined Written Test）。
+一個免費、無需註冊、可完全離線使用嘅溫習平台，幫你準備香港運輸署 **的士及網約車綜合筆試**（Taxi and Ride-hailing Vehicle Combined Written Test）。
 
 🌐 **線上版**：https://eeworm.github.io/hk-taxi-written-test/
 
