@@ -495,18 +495,27 @@ CSS = """
   --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, "Noto Sans Mono CJK TC", monospace;
   --sans: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", "Segoe UI", sans-serif;
   --shadow: 0 1px 3px rgba(18,35,59,.08), 0 8px 24px rgba(18,35,59,.06);
+  --shadow-lg: 0 4px 12px rgba(18,35,59,.1), 0 16px 32px rgba(18,35,59,.08);
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --transition: 150ms ease;
+  --transition-slow: 250ms ease;
+  --focus-ring: 0 0 0 3px rgba(0,87,184,.4);
 }
 [data-theme="dark"] {
-  --paper: #10151C;
-  --card: #18202B;
-  --text: #E8E4DA;
-  --text-soft: #97A0AC;
-  --line: #2A3442;
-  --red-soft: rgba(200,16,46,.14);
-  --blue-soft: rgba(0,87,184,.16);
-  --amber-soft: rgba(247,168,0,.13);
-  --green-soft: rgba(30,122,70,.16);
-  --shadow: 0 1px 3px rgba(0,0,0,.4);
+  --paper: #0C1218;
+  --card: #141C26;
+  --text: #ECE8E0;
+  --text-soft: #A8B2C0;
+  --line: #2E3A4A;
+  --red-soft: rgba(200,16,46,.18);
+  --blue-soft: rgba(0,87,184,.2);
+  --amber-soft: rgba(247,168,0,.18);
+  --green-soft: rgba(30,122,70,.2);
+  --shadow: 0 1px 3px rgba(0,0,0,.5), 0 8px 24px rgba(0,0,0,.3);
+  --shadow-lg: 0 4px 12px rgba(0,0,0,.5), 0 16px 32px rgba(0,0,0,.4);
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -516,8 +525,46 @@ body {
   background: var(--paper);
   color: var(--text);
   line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 button { font-family: var(--sans); }
+
+/* ==== Accessibility ==== */
+.skip-link {
+  position: absolute; top: -100%; left: 16px; z-index: 1000;
+  background: var(--red); color: #fff; padding: 10px 16px;
+  border-radius: var(--radius); font-weight: 600; font-size: .85rem;
+}
+.skip-link:focus { top: 16px; outline: none; box-shadow: var(--focus-ring); }
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --line: #999;
+    --text-soft: #333;
+  }
+  [data-theme="dark"] {
+    --line: #888;
+    --text-soft: #ddd;
+  }
+}
 
 /* ==== 版面 ==== */
 .layout { display: grid; grid-template-columns: 300px 1fr; min-height: 100vh; }
@@ -909,6 +956,333 @@ button { font-family: var(--sans); }
   .table-wrap th { background: #eee !important; color: #000 !important; }
   body { background: #fff; }
 }
+
+/* ==== Enhanced Components ==== */
+
+/* Lesson cards - improved hover & focus */
+.lesson > summary:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius);
+}
+.lesson:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-1px);
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+
+/* Search highlight */
+mark.search-highlight {
+  background: var(--amber-soft);
+  color: var(--amber);
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+/* Quiz option improvements */
+.quiz-opt {
+  position: relative;
+  overflow: hidden;
+}
+.quiz-opt::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.1), transparent);
+  transform: translateX(-100%);
+  transition: transform var(--transition-slow);
+}
+.quiz-opt:hover:not(:disabled)::before {
+  transform: translateX(100%);
+}
+.quiz-opt.correct::after {
+  content: '✓';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  color: var(--green);
+  font-weight: 700;
+}
+.quiz-opt.wrong::after {
+  content: '✕';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  color: var(--red);
+  font-weight: 700;
+}
+
+/* Quiz feedback animation */
+.quiz-feedback {
+  animation: slideIn var(--transition-slow) ease;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Sign card enhancements */
+.sign-card {
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+}
+.sign-card:hover {
+  border-color: var(--blue);
+}
+.sign-card:focus-within {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius);
+}
+
+/* Table improvements */
+.table-wrap table {
+  font-variant-numeric: tabular-nums;
+}
+.table-wrap th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* Map modal improvements */
+.map-modal-card {
+  animation: modalIn var(--transition-slow) ease;
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(.96) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.map-modal-backdrop {
+  animation: fadeIn var(--transition) ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Welcome banner pulse animation for CTA */
+.welcome-greet {
+  animation: pulseSoft 3s ease-in-out infinite;
+}
+@keyframes pulseSoft {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0,87,184,.3); }
+  50% { box-shadow: 0 0 0 8px rgba(0,87,184,0); }
+}
+
+/* Toolbar button improvements */
+.toolbar button {
+  transition: all var(--transition);
+}
+.toolbar button:active {
+  transform: scale(.98);
+}
+
+/* Sidebar search clear button */
+.sidebar .search-wrapper {
+  position: relative;
+}
+.sidebar .search-clear {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #6E8199;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 4px;
+  display: none;
+}
+.sidebar .search-clear:hover { color: var(--red); }
+.sidebar .search:not(:placeholder-shown) + .search-clear {
+  display: block;
+}
+
+/* Quiz controls layout on mobile */
+@media (max-width: 640px) {
+  .quiz-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .quiz-controls label {
+    justify-content: space-between;
+  }
+  .quiz-controls select {
+    flex: 1;
+    min-width: 0;
+  }
+  .quiz-controls .quiz-newfirst {
+    justify-content: center;
+  }
+}
+
+/* Back to top button */
+.back-top {
+  transition: opacity var(--transition), transform var(--transition), background var(--transition);
+}
+.back-top:hover {
+  background: var(--red);
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+.back-top:active {
+  transform: translateY(0) scale(.95);
+}
+
+/* No results message */
+.no-results {
+  animation: shake .4s ease;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
+/* TOC active link - more prominent */
+.toc li a.active {
+  background: var(--red-soft) !important;
+  color: var(--red) !important;
+  font-weight: 600;
+}
+
+/* Callout improvements */
+.lesson-content blockquote {
+  position: relative;
+  padding-left: 44px;
+  transition: transform var(--transition);
+}
+.lesson-content blockquote:hover {
+  transform: translateX(2px);
+}
+.lesson-content blockquote::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: .2;
+}
+
+/* Progress indication for quiz */
+.quiz-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.quiz-progress-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.quiz-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--blue), var(--green));
+  border-radius: 2px;
+  transition: width var(--transition-slow);
+  width: 0%;
+}
+
+/* Dark mode specific tweaks */
+[data-theme="dark"] .sign-card {
+  box-shadow: 0 2px 8px rgba(0,0,0,.3);
+}
+[data-theme="dark"] .welcome {
+  box-shadow: var(--shadow-lg);
+}
+[data-theme="dark"] .toolbar button {
+  background: var(--card);
+  border-color: var(--line);
+}
+[data-theme="dark"] .quiz-controls {
+  background: var(--blue-soft);
+  border-color: rgba(0,87,184,.3);
+}
+[data-theme="dark"] .lesson-content blockquote {
+  background: var(--red-soft);
+}
+
+/* Quiz mixed mode info */
+.quiz-mode-info {
+  font-size: .75rem;
+  color: var(--text-soft);
+  font-family: var(--mono);
+  margin-top: 4px;
+}
+
+/* Download list hover */
+.download-list li {
+  transition: padding-left var(--transition);
+}
+.download-list li:hover {
+  padding-left: 8px;
+}
+.download-list a {
+  transition: color var(--transition);
+}
+
+/* Route/Place map button */
+.route-map, .quiz-map {
+  transition: all var(--transition);
+}
+.route-map:active, .quiz-map:active {
+  transform: scale(.96);
+}
+
+/* Sign badge */
+.sign-badge {
+  animation: badgePop .3s ease;
+}
+@keyframes badgePop {
+  from { opacity: 0; transform: scale(.5) translate(50%, -50%); }
+  to { opacity: 1; transform: scale(1) translate(0, 0); }
+}
+
+/* Responsive tables */
+@media (max-width: 480px) {
+  .table-wrap {
+    margin: .9em -12px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+  .lesson-content {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+}
+
+/* Loading state for quiz */
+.quiz-opt.loading {
+  pointer-events: none;
+  opacity: .6;
+}
+.quiz-opt.loading::after {
+  content: '';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  margin-top: -8px;
+  border: 2px solid var(--line);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin {
+  to { transform: translateY(-50%) rotate(360deg); }
+}
 """
 
 JS = """
@@ -951,9 +1325,10 @@ JS = """
 
   /* ---- 搜尋 ---- */
   var search = document.getElementById("search");
+  var searchClear = document.querySelector(".search-clear");
   var tocLinks = document.querySelectorAll(".toc li a");
   var noResults = document.getElementById("no-results");
-  search.addEventListener("input", function () {
+  function doSearch() {
     var q = search.value.trim().toLowerCase();
     var visible = 0;
     lessons.forEach(function (lesson) {
@@ -966,7 +1341,16 @@ JS = """
       a.classList.toggle("hidden", q && a.textContent.toLowerCase().indexOf(q) === -1);
     });
     noResults.style.display = (q && visible === 0) ? "block" : "none";
-  });
+    if (searchClear) searchClear.style.display = q ? "block" : "none";
+  }
+  search.addEventListener("input", doSearch);
+  if (searchClear) {
+    searchClear.addEventListener("click", function () {
+      search.value = "";
+      doSearch();
+      search.focus();
+    });
+  }
 
   /* ---- TOC 高亮（scrollspy） ---- */
   var heads = document.querySelectorAll(".lesson-content h2, .lesson-content h3");
@@ -1195,8 +1579,10 @@ JS = """
         pool = uniq(bank.routes.map(function (r) { return r.r; })).filter(function (r) { return r !== q.a; });
         opts = shuffle([q.a].concat(shuffle(pool).slice(0, 2)));
       }
-      qzStatus.textContent = "第 " + (st.i + 1) + " / " + st.questions.length +
-        " 題 ・ 答對 " + st.correct + " ・ 答錯 " + st.wrong.length;
+      var progress = Math.round((st.i) / st.questions.length * 100);
+      qzStatus.innerHTML = '<span>第 ' + (st.i + 1) + ' / ' + st.questions.length +
+        ' 題 ・ 答對 ' + st.correct + ' ・ 答錯 ' + st.wrong.length + '</span>' +
+        '<div class="quiz-progress-bar"><div class="quiz-progress-fill" style="width:' + progress + '%"></div></div>';
       var qtext = q.type === "route" ? "「" + esc(q.q) + "」最直接可行嘅路線係？"
                  : q.type === "place" ? "「" + esc(q.q) + "」喺邊度？"
                  : esc(q.q);
@@ -1366,6 +1752,7 @@ def build():
 <style>{CSS}</style>
 </head>
 <body>
+<a href="#main-content" class="skip-link">跳至主要內容</a>
 <div class="overlay" id="overlay"></div>
 <div class="layout">
   <aside class="sidebar" id="sidebar">
@@ -1374,12 +1761,15 @@ def build():
       <span class="brand-text"><strong>Driwe 溫習指南</strong>
       <small>的士及網約車綜合筆試</small></span>
     </div>
-    <input class="search" id="search" type="search" placeholder="🔍 搜尋筆記內容…" aria-label="搜尋">
+    <div class="search-wrapper">
+      <input class="search" id="search" type="search" placeholder="🔍 搜尋筆記內容…" aria-label="搜尋">
+      <button class="search-clear" aria-label="清除搜尋">✕</button>
+    </div>
     <a class="sidebar-quick" href="#quiz-sec">📝 互動模擬試</a>
     <nav class="toc">{toc_html}</nav>
     <div class="sidebar-foot">💪 祝大家考試成功，一take過！</div>
   </aside>
-  <div class="main">
+  <div class="main" id="main-content">
     <div class="topbar">
       <button class="hamburger" id="hamburger" aria-label="開啟目錄">☰</button>
       <strong>Driwe 溫習指南</strong>
