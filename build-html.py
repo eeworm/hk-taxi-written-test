@@ -378,27 +378,45 @@ def parse_mc_bank():
     return partA, partB
 
 
-def render_mc_card():
-    """選擇題庫卡片：Q/O 格式渲染為易讀樣式（正確答案打✓）。"""
+def render_mc_card(idx):
+    """選擇題庫卡片：Q/O 格式渲染為易讀樣式（正確答案打✓）。
+
+    回傳 (html, toc)。
+
+    呢個 renderer 會**重新編排**標題：markdown 入面「甲部」「乙部」兩個
+    `##` 標題重複出現好多次，但呢度只會出兩個。所以側邊欄一定要用呢度
+    實際 render 出嚟嘅標題去起 TOC——沿用 markdown 嘅標題次序嘅話，
+    啲 anchor 會指去一堆唔存在嘅 id（全部撳唔到）。
+    """
     partA, partB = parse_mc_bank()
+    seq = 0
+    toc = []
+
+    def heading(level, text):
+        nonlocal seq
+        seq += 1
+        hid = f"l{idx}-s{seq}"
+        toc.append((level, text, hid, False))
+        return f'<{level} id="{hid}">{text}</{level}>'
+
     out = [
         '<blockquote class="callout callout-blue"><p>🧠 呢份係互動模擬試嘅服務知識＋道路守則題庫。'
         '答案已用 <strong>粗體✓</strong> 標示——溫習時遮住答案試答，再喺模擬試測試自己。</p></blockquote>',
     ]
     for title, items in (("一、的士及網約車營運（甲部）", partA),
                          ("二、道路使用者守則（乙部）", partB)):
-        out.append(f"<h2>{title}</h2>")
+        out.append(heading("h2", title))
         cur = None
         for q in items:
             if q["cat"] != cur:
                 cur = q["cat"]
-                out.append(f"<h3>{cur}</h3>")
+                out.append(heading("h3", cur))
             out.append(f'<div class="mc-q"><p class="mc-text">{q["q"]}</p><ul class="mc-opts">')
             for o in q["opts"]:
                 cls = ' class="ok"' if o["ok"] else ""
                 out.append(f"<li{cls}>{o['t']}</li>")
             out.append("</ul></div>")
-    return "\n".join(out)
+    return "\n".join(out), toc
 
 
 def build_quiz(places, routes):
@@ -1731,6 +1749,11 @@ def build():
     docs, toc_groups = [], {}
     for idx, path in enumerate(FILES, 1):
         doc = convert_file(idx, path)
+        if path == "exams/quiz-bank-mc.md":
+            # 呢份嘅內文由 render_mc_card() 重新編排，標題次序同 markdown
+            # 唔一樣——所以要連 TOC 一齊由 renderer 攞返，唔可以沿用
+            # convert_file() 由 markdown 計出嚟嗰份（會全部 anchor 死鏈）。
+            doc["html"], doc["toc"] = render_mc_card(idx)
         docs.append((idx, path, doc))
         group = GROUP_OVERRIDE.get(path) or {
             "notes": "課程", "exams": "練習"}.get(path.split("/")[0], "課程計劃")
@@ -1758,7 +1781,7 @@ def build():
     lesson_parts = []
     for idx, path, doc in docs:
         if path == "exams/quiz-bank-mc.md":
-            body = render_mc_card()
+            body = doc["html"]
         else:
             body = doc["html"]
             body = wrap_tables(body)
