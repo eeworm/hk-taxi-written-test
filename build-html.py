@@ -20,6 +20,7 @@ import markdown
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SIGNS_ROOT = os.path.join(ROOT, "assets", "signs")
 SIGNS_REDRAWN = os.path.join(SIGNS_ROOT, "redrawn")
+SIGNS_CH8 = os.path.join(SIGNS_ROOT, "ch8")
 OUT_PATH = os.path.join(ROOT, "index.html")
 
 # ---------------------------------------------------------------------------
@@ -43,6 +44,7 @@ FILES = [
     "notes/lesson-17-trunk-roads.md",
     "notes/lesson-18-signs-classification.md",
     "notes/lesson-19-2026-supplement.md",
+    "notes/lesson-20-signs-giving-orders.md",
     "notes/official-place-route-bank.md",
     "notes/location-reference-handbook.md",
     "exams/real-exam-questions-reference.md",
@@ -113,8 +115,8 @@ INJECT = [
 # 3. 工具函數
 # ---------------------------------------------------------------------------
 def find_sign(name):
-    """先搵 assets/signs/，再搵 redrawn/。"""
-    for base in (SIGNS_ROOT, SIGNS_REDRAWN):
+    """先搵 assets/signs/，再搵 redrawn/，最後搵 ch8/（第20課嘅官方標誌）。"""
+    for base in (SIGNS_ROOT, SIGNS_REDRAWN, SIGNS_CH8):
         p = os.path.join(base, name)
         if os.path.isfile(p):
             return p
@@ -151,26 +153,32 @@ def sanitize_svg(src, alt=""):
 
 
 def inline_imgs(html):
-    """內嵌標誌圖：SVG → 消毒後 inline；PNG → base64 data URI。支援 mirror class。"""
+    """內嵌標誌圖：SVG → 消毒後 inline；PNG → base64 data URI。支援 mirror class。
+
+    data-sign="N" 會保留：睇圖題靠呢個屬性喺 DOM 搵返張圖，唔使喺題庫 JSON
+    再內嵌多一份 base64（104 張圖 dupe 一次就多 210KB）。
+    """
     def repl(m):
-        src, alt, mirror_cls = m.group(1), m.group(2), m.group(3) or ""
+        src, alt, mirror_cls, sign_n = m.group(1), m.group(2), m.group(3) or "", m.group(5)
         name = src.rsplit("/", 1)[-1]
         try:
             path = find_sign(name)
         except FileNotFoundError:
             print(f"  !! 標誌檔案缺失：{name}", file=sys.stderr)
             return m.group(0)
+        ds = f' data-sign="{sign_n}"' if sign_n else ""
         if name.endswith(".svg"):
             with open(path, encoding="utf-8", errors="ignore") as f:
-                return sanitize_svg(f.read(), alt)
+                return sanitize_svg(f.read(), alt).replace("<svg ", f"<svg{ds} ", 1)
         import base64
         with open(path, "rb") as f:
             b64 = base64.b64encode(f.read()).decode()
         extra = ' mirror' if mirror_cls else ''
-        return (f'<img class="sign{extra}" src="data:image/png;base64,{b64}" '
+        return (f'<img class="sign{extra}"{ds} src="data:image/png;base64,{b64}" '
                 f'alt="{alt}">')
     return re.sub(
-        r'<img\s+src="(assets/signs/[^"]+)"\s+alt="([^"]*)"(\sclass="mirror")?\s*/?>',
+        r'<img\s+src="(assets/signs/[^"]+)"\s+alt="([^"]*)"(\sclass="mirror")?'
+        r'(\sdata-sign="(\d+)")?\s*/?>',
         repl, html)
 
 
@@ -355,6 +363,11 @@ def parse_mc_bank():
         if m:
             q = {"q": m.group(1).strip(), "cat": cat, "opts": []}
             continue
+        # S: 標誌編號 —— 睇圖題（配 lesson-20 嘅 assets/signs/ch8/）
+        m = re.match(r"S:\s*(\d+)", line)
+        if m and q is not None:
+            q["sign"] = int(m.group(1))
+            continue
         m = re.match(r"O:\s*(.+)", line)
         if m and q is not None:
             for opt in m.group(1).split("|"):
@@ -397,6 +410,17 @@ def build_quiz(places, routes):
             cats.append(p["cat"])
     mc_a, mc_b = parse_mc_bank()
     mc_cats = list(dict.fromkeys(q["cat"] for q in mc_a + mc_b))
+
+    # 睇圖題靠 lesson-20 圖鑑嘅 data-sign 借圖——編號打錯就會靜靜哋冇圖，
+    # 所以喺 build 階段就要嘈。
+    mc_manifest = os.path.join(SIGNS_CH8, "manifest.json")
+    have_ds = set()
+    if os.path.isfile(mc_manifest):
+        with open(mc_manifest, encoding="utf-8") as f:
+            have_ds = {r["n"] for r in json.load(f)}
+    bad_ds = sorted({q["sign"] for q in mc_a + mc_b if q.get("sign")} - have_ds)
+    if bad_ds:
+        print(f"  !! 睇圖題引用嘅標誌編號唔存在：{bad_ds}", file=sys.stderr)
     bank = json.dumps({"places": places, "routes": routes, "cats": cats,
                        "mcA": mc_a, "mcB": mc_b, "mcCats": mc_cats},
                       ensure_ascii=False)
@@ -821,6 +845,12 @@ button { font-family: var(--sans); }
   background: var(--red-soft); border: 1px solid rgba(200,16,46,.25);
   padding: 1px 8px; border-radius: 5px; margin-right: 8px; vertical-align: 2px;
 }
+.quiz-sign-wrap { display: flex; justify-content: center; margin: .5em 0 .2em; }
+.quiz-sign {
+  width: 148px; height: 148px; object-fit: contain; display: block;
+  image-rendering: -webkit-optimize-contrast;
+}
+@media (max-width: 640px) { .quiz-sign { width: 116px; height: 116px; } }
 .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 @media (max-width: 640px) { .quiz-options { grid-template-columns: 1fr; } }
 .quiz-opt {
@@ -1475,6 +1505,9 @@ JS = """
     function qKey(q) {
       if (q.type === "place") return "p:" + q.n;
       if (q.type === "route") return "r:" + q.n;
+      /* 睇圖題共用同一句問題文字（只有張圖唔同），一定要用標誌編號做 key，
+         唔係 104 題會撞同一個 key，答一題就當全部都答過 */
+      if (q.sign) return "s:" + q.sign;
       return "m:" + q.q;
     }
     function placeQ(p) { return { type: "place", q: p.name, a: p.loc, tag: p.cat, n: p.n, mapQ: p.name + " 香港" }; }
@@ -1482,7 +1515,16 @@ JS = """
     function mcQ(m) {
       var ok = null;
       m.opts.forEach(function (o) { if (o.ok) ok = o.t; });
-      return { type: "mc", q: m.q, a: ok, tag: m.cat, opts: m.opts.map(function (o) { return o.t; }) };
+      return { type: "mc", q: m.q, a: ok, tag: m.cat, sign: m.sign,
+               opts: m.opts.map(function (o) { return o.t; }) };
+    }
+
+    /* 睇圖題：由 lesson-20 圖鑑借張圖（同一個 data-sign），唔使喺題庫 dupe base64 */
+    function signHtml(n) {
+      if (!n) return "";
+      var el = document.querySelector('img[data-sign="' + n + '"]');
+      if (!el) return "";
+      return '<img class="quiz-sign" src="' + el.getAttribute("src") + '" alt="交通標誌">';
     }
 
     function fillCats() {
@@ -1587,6 +1629,7 @@ JS = """
                  : q.type === "place" ? "「" + esc(q.q) + "」喺邊度？"
                  : esc(q.q);
       qzBody.innerHTML =
+        (q.sign ? '<div class="quiz-sign-wrap">' + signHtml(q.sign) + "</div>" : "") +
         '<p class="quiz-q"><span class="q-tag">' + esc(q.tag) + "</span>" + qtext + "</p>" +
         '<div class="quiz-options">' + opts.map(function (o, i) {
           return '<button class="quiz-opt" data-v="' + esc(o) + '"><span class="opt-tag">' +
